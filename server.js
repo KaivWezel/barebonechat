@@ -13,6 +13,9 @@ app.use(express.static("public"));
 
 io.on("connection", (socket) => {
 	console.log("user connected");
+	socket.on("message", (msg) => {
+		socket.emit("message", msg);
+	});
 });
 
 server.listen(port, () => {
