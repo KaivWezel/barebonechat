@@ -7,7 +7,7 @@ const server = http.createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server);
 const { ExpressPeerServer } = require("peer");
-const peerServer = ExpressPeerServer(server, { path: "/", debug: true });
+const peerServer = ExpressPeerServer(server, { debug: true });
 const port = process.env.PORT || 3000;
 
 app.set("view engine", "ejs").set("views", path.join(__dirname + "/views"));
@@ -42,11 +42,12 @@ io.on("connection", (socket) => {
 	socket.on("join-room", (roomId, userId) => {
 		socket.join(roomId);
 		socket.to(roomId).emit("user-connected", userId);
+
+		socket.on("disconnect", () => {
+			socket.to(roomId).emit("user-disconnected", userId);
+		});
 	});
 	socket.on("chat-message", (roomId, msg) => {
 		io.to(roomId).emit("chat-message", msg);
-	});
-	socket.on("disconnect", () => {
-		console.log("user disconnected");
 	});
 });
