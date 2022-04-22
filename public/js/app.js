@@ -7,7 +7,8 @@ const sendBtn = document.querySelector(".sendbutton");
 const chatInput = document.querySelector(".chat-input");
 const chat = document.querySelector(".chat");
 const videoGrid = document.querySelector(".video-grid");
-const muteBtn = document.querySelector(".mute");
+const muteBtn = document.querySelector(".toggleMic");
+const camBtn = document.querySelector(".toggleCam");
 const peer = new Peer();
 // const peer = new Peer();
 const myVideo = document.createElement("video");
@@ -30,10 +31,26 @@ let localStream, remoteStream;
 // EventListeneres
 // ========= //
 
-muteBtn.addEventListener("mouseover", (e) => {
+muteBtn.addEventListener("click", (e) => {
 	e.preventDefault();
+	toggleMic();
+	if (localStream.getAudioTracks()[0].enabled === true) {
+		socket.emit("mic-enabled");
+	} else {
+		socket.emit("mic-disabled");
+	}
 	console.log("you are muted");
-	localStream.getAudioTracks()[0].enabled = false;
+});
+
+camBtn.addEventListener("click", (e) => {
+	e.preventDefault();
+	toggleCam();
+	if (localStream.getVideoTracks()[0].enabled === true) {
+		socket.emit("cam-enabled");
+	} else {
+		socket.emit("cam-disabled");
+	}
+	console.log("cam enabled/disabled");
 });
 
 sendBtn.addEventListener("click", (e) => {
@@ -73,7 +90,6 @@ socket.on("user-connected", (userId) => {
 });
 
 socket.on("user-disconnected", (userId) => {
-	console.log("a user disconnected");
 	if (peers[userId]) {
 		peers[userId].close();
 		delete peers[userId];
@@ -103,7 +119,6 @@ function connectToNewUser(userId) {
 	const call = peer.call(userId, localStream);
 	const video = document.createElement("video");
 	call.on("stream", (stream) => {
-		console.log("stream received", stream);
 		addStream(video, stream);
 	});
 	call.on("close", () => {
@@ -111,5 +126,14 @@ function connectToNewUser(userId) {
 	});
 
 	peers[userId] = call;
-	console.log("new peers", peers);
+}
+
+function toggleMic() {
+	localStream.getAudioTracks()[0].enabled =
+		!localStream.getAudioTracks()[0].enabled;
+}
+
+function toggleCam(stream) {
+	localStream.getVideoTracks()[0].enabled =
+		!localStream.getVideoTracks()[0].enabled;
 }
