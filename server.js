@@ -6,14 +6,11 @@ const { v4: uuidv4 } = require("uuid");
 const server = http.createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server);
-const { ExpressPeerServer } = require("peer");
-const peerServer = ExpressPeerServer(server, { debug: true });
 const port = process.env.PORT || 3000;
 
 app.set("view engine", "ejs").set("views", path.join(__dirname + "/views"));
 
 app.use(express.static("public")).use(express.urlencoded());
-app.use("/peerjs", peerServer);
 
 server.listen(port, () => {
 	console.log("listening to port: " + port);
