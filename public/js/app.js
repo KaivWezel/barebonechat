@@ -7,10 +7,7 @@ const sendBtn = document.querySelector(".sendbutton");
 const chatInput = document.querySelector(".chat-input");
 const chat = document.querySelector(".chat");
 const videoGrid = document.querySelector(".video-grid");
-const peer = new Peer(undefined, {
-	host: "localhost",
-	port: "3000",
-});
+const peer = new Peer();
 // const peer = new Peer();
 const myVideo = document.createElement("video");
 myVideo.muted = true;
@@ -43,6 +40,10 @@ socket.on("user-connected", (userId) => {
 	connectToNewUser(userId);
 });
 
+socket.on("user-disconnected", (userId) => {
+	peers[userId].close();
+});
+
 peer.on("call", (call) => {
 	console.log(`you're getting called`);
 	call.answer(localStream);
@@ -73,4 +74,9 @@ function connectToNewUser(userId) {
 		console.log("stream received", stream);
 		addStream(video, stream);
 	});
+	call.on("close", () => {
+		video.remove();
+	});
+
+	peers[userId] = call;
 }
