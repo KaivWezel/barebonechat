@@ -3,3 +3,4 @@ DS_Store
 /sass
 index.css.map
 *.scss
+node_modules/.package-lock.json
