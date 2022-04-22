@@ -7,6 +7,7 @@ const sendBtn = document.querySelector(".sendbutton");
 const chatInput = document.querySelector(".chat-input");
 const chat = document.querySelector(".chat");
 const videoGrid = document.querySelector(".video-grid");
+const muteBtn = document.querySelector(".mute");
 const peer = new Peer();
 // const peer = new Peer();
 const myVideo = document.createElement("video");
@@ -26,7 +27,14 @@ let localStream, remoteStream;
 })();
 
 peer.on("open", (id) => {
+	console.log(id);
 	socket.emit("join-room", roomId, id);
+});
+
+muteBtn.addEventListener("mouseover", (e) => {
+	e.preventDefault();
+	console.log("you are muted");
+	localStream.getAudioTracks()[0].enabled = false;
 });
 
 sendBtn.addEventListener("click", (e) => {
@@ -41,17 +49,26 @@ socket.on("user-connected", (userId) => {
 });
 
 socket.on("user-disconnected", (userId) => {
-	peers[userId].close();
+	console.log("a user disconnected");
+	if (peers[userId]) {
+		peers[userId].close();
+		delete peers[userId];
+	} else {
+		console.log("user not found");
+		console.log(peers);
+	}
 });
 
 peer.on("call", (call) => {
-	console.log(`you're getting called`);
 	call.answer(localStream);
-	console.log("call answered");
 	const video = document.createElement("video");
 	call.on("stream", (stream) => {
 		addStream(video, stream);
 	});
+	call.on("close", () => {
+		video.remove();
+	});
+	peers[call.peer] = call;
 });
 
 socket.on("chat-message", (msg) => {
@@ -79,4 +96,5 @@ function connectToNewUser(userId) {
 	});
 
 	peers[userId] = call;
+	console.log("new peers", peers);
 }
