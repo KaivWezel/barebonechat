@@ -26,10 +26,9 @@ let localStream, remoteStream;
 	}
 })();
 
-peer.on("open", (id) => {
-	console.log(id);
-	socket.emit("join-room", roomId, id);
-});
+// ========= //
+// EventListeneres
+// ========= //
 
 muteBtn.addEventListener("mouseover", (e) => {
 	e.preventDefault();
@@ -43,6 +42,31 @@ sendBtn.addEventListener("click", (e) => {
 	const msg = chatInput.value;
 	socket.emit("chat-message", roomId, msg);
 });
+
+// ========= //
+// Peer connection handling
+// ========= //
+
+peer.on("open", (id) => {
+	console.log(id);
+	socket.emit("join-room", roomId, id);
+});
+
+peer.on("call", (call) => {
+	call.answer(localStream);
+	const video = document.createElement("video");
+	call.on("stream", (stream) => {
+		addStream(video, stream);
+	});
+	call.on("close", () => {
+		video.remove();
+	});
+	peers[call.peer] = call;
+});
+
+// ========= //
+// Socket handling
+// ========= //
 
 socket.on("user-connected", (userId) => {
 	connectToNewUser(userId);
@@ -59,24 +83,15 @@ socket.on("user-disconnected", (userId) => {
 	}
 });
 
-peer.on("call", (call) => {
-	call.answer(localStream);
-	const video = document.createElement("video");
-	call.on("stream", (stream) => {
-		addStream(video, stream);
-	});
-	call.on("close", () => {
-		video.remove();
-	});
-	peers[call.peer] = call;
-});
-
 socket.on("chat-message", (msg) => {
 	const message = document.createElement("li");
 	message.innerText = msg;
 	chat.appendChild(message);
 });
 
+// ========= //
+// Functions
+// ========= //
 function addStream(video, stream) {
 	video.srcObject = stream;
 	video.addEventListener("loadedmetadata", () => {
