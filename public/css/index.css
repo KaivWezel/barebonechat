@@ -1,0 +1,13 @@
+.video-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 200px);
+}
+
+video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: rotateY(180deg);
+}
+
+/*# sourceMappingURL=index.css.map */
