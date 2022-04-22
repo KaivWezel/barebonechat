@@ -40,6 +40,23 @@ io.on("connection", (socket) => {
 		socket.join(roomId);
 		socket.to(roomId).emit("user-connected", userId);
 
+		socket.on("mic-disabled", () => {
+			socket.to(roomId).emit("user-muted", userId);
+			console.log("mic-dis");
+		});
+		socket.on("mic-enabled", () => {
+			socket.to(roomId).emit("user-unmuted", userId);
+			console.log("mic-en");
+		});
+		socket.on("cam-disabled", () => {
+			socket.to(roomId).emit("user-invisible", userId);
+			console.log("cam-dis");
+		});
+		socket.on("cam-enabled", () => {
+			socket.to(roomId).emit("user-visibile", userId);
+			console.log("cam-en");
+		});
+
 		socket.on("disconnect", () => {
 			socket.to(roomId).emit("user-disconnected", userId);
 		});
