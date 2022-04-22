@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<%-include('./partials/head.ejs')%>
+	</head>
+	<body>
+		<header>
+			<h1>Chill Bill</h1>
+			<h2>Videochat app voor een snelle meeting</h2>
+		</header>
+		<main>
+			<form action="/create-room" method="post">
+				<label for="roomId">Kies een naam voor je meeting</label>
+				<input type="text" name="roomId" id="roomId" />
+				<button>Maak meeting</button>
+			</form>
+			<form action="/join-room" method="post">
+				<label for="room">Doe mee met een meeting</label>
+				<input type="text" name="room" id="room" />
+				<button>Join meeting</button>
+			</form>
+		</main>
+	</body>
+</html>
